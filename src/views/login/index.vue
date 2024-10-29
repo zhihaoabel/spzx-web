@@ -102,7 +102,7 @@ export default defineComponent({
     const state = reactive({
       model: {
         userName: 'admin',
-        password: '123456',
+        password: '111111',
       },
       rules: getRules(),
       loading: false,
@@ -118,7 +118,7 @@ export default defineComponent({
           if (valid) {
             state.loading = true
             const { code, data, message } = await Login(state.model)
-            if (+code === 200) {
+            if (+code === 20000) {
               ctx.$message.success({
                 message: ctx.$t('login.loginsuccess'),
                 duration: 1000,
@@ -159,58 +159,71 @@ export default defineComponent({
   height: 100%;
   overflow: hidden;
   background: #2d3a4b;
+
   .form {
     width: 520px;
     max-width: 100%;
     padding: 0 24px;
     box-sizing: border-box;
     margin: 160px auto 0;
+
     :deep {
       .el-input__wrapper {
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
         background: rgba(0, 0, 0, 0.1);
       }
+
       .el-input-group--append > .el-input__wrapper {
         border-top-right-radius: 0;
         border-bottom-right-radius: 0;
       }
+
       .el-input-group--prepend > .el-input__wrapper {
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
       }
     }
+
     .title {
       color: #fff;
       text-align: center;
       font-size: 24px;
       margin: 0 0 24px;
     }
+
     .text {
       font-size: 16px;
+
       :deep(.el-input__inner) {
         color: #fff;
         height: 48px;
         line-height: 48px;
+
         &::placeholder {
           color: rgba(255, 255, 255, 0.2);
         }
       }
     }
+
     .btn {
       width: 100%;
     }
   }
 }
+
 .change-lang {
   position: fixed;
   right: 20px;
   top: 20px;
+
   :deep {
     .change-lang {
       height: 24px;
+
       &:hover {
         background: none;
       }
+
       .icon {
         color: #fff;
       }

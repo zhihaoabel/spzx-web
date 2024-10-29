@@ -41,12 +41,12 @@ export const Permission = app => {
     mounted: function(el, binding) {
       const { permissionList } = useAccount()
 
-      if (
-        binding.value &&
-        permissionList.every(item => item !== binding.value)
-      ) {
+      // 如果没有指定权限值，直接返回
+      if (!binding.value) return
+
+      if (!permissionList.includes(binding.value)) {
         // 移除组件
-        el.parentNode.removeChild(el)
+        el.parentNode?.removeChild(el)
       }
     },
   })

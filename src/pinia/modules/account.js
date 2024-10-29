@@ -25,7 +25,7 @@ export const useAccount = defineStore('account', {
     // 获取用户信息
     async getUserinfo() {
       const { code, data } = await GetUserinfo()
-      if (+code === 200) {
+      if (+code === 20000) {
         this.userinfo = data
         return Promise.resolve(data)
       }

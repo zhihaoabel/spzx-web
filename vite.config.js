@@ -77,14 +77,23 @@ export default env => {
       open: true,
       proxy: {
         '/api': {
-          target: 'http://dev.api.xxx.com', // 后端接口的域名
+          target: 'http://localhost:15000',
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api/, ''),
+          // 添加错误处理
+          configure: (proxy, options) => {
+            proxy.on('error', (err, req, res) => {
+              console.log('proxy error', err)
+              res.statusCode = 500
+              res.end('Proxy error: Could not connect to the target server')
+            })
+          },
         },
       },
     },
     esbuild: false,
     build: {
+      minify: 'terser',
       terserOptions: {
         compress: {
           keep_infinity: true,

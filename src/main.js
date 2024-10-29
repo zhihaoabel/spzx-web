@@ -35,12 +35,14 @@
  */
 
 import { createApp } from 'vue'
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
+import ElementPlusPlugin from './plugins/element-plus'
 import App from './App.vue'
 
 const app = createApp(App)
 
 // 引入element-plus
-import ElementPlus from 'element-plus'
 import './assets/style/element-variables.scss'
 
 // 国际化
@@ -82,6 +84,7 @@ useErrorHandler(app)
 app
   .use(i18n)
   .use(ElementPlus)
+  .use(ElementPlusPlugin)
   .use(pinia)
   .use(router)
   .mount('#app')

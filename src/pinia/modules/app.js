@@ -66,6 +66,9 @@ export const useApp = defineStore('app', {
       // 清空menus
       useMenus().setMenus([])
     },
+    getToken() {
+      return getItem(TOKEN).token
+    },
     setScreenCode(password) {
       const authorization = toRaw(this.authorization)
 

@@ -40,7 +40,9 @@ import { nextTick } from 'vue'
 import { useApp } from './pinia/modules/app'
 import { useAccount } from './pinia/modules/account'
 import { useMenus } from './pinia/modules/menu'
+import { useMessage } from './plugins/element-plus'
 
+const message = useMessage()
 const getPageTitle = title => {
   const { title: appTitle } = useApp()
   if (title) {
@@ -81,6 +83,7 @@ router.beforeEach(async to => {
         // 获取用户信息
         await getUserinfo()
       } catch (err) {
+        message.error('没有用户信息，不进行下一步')
         loadingInstance.close()
         return false
       }

@@ -121,7 +121,38 @@ service.interceptors.response.use(
     // console.dir(error) // 可在此进行错误上报
     ElMessage.closeAll()
     try {
-      ElMessage.error(error.response.data.msg)
+      // 获取错误信息
+      const errorMessage =
+        error.response?.data?.msg || error.message || '未知错误'
+      const method = error.config?.method?.toUpperCase() || '未知'
+      const url = error.config?.url || '未知'
+      const status = error.response?.status || '未知'
+
+      // 根据状态码定制错误提示
+      const statusMessages = {
+        400: 'Bad Request',
+        401: 'Unauthorized',
+        403: 'Forbidden',
+        404: 'Not Found',
+        500: 'Internal Server Error',
+        502: 'Bad Gateway',
+        503: 'Service Unavailable',
+        504: 'Gateway Timeout',
+      }
+
+      // 构建错误显示信息
+      const displayMessage = statusMessages[status]
+        ? `${method} ${url} (${status}) ${statusMessages[status]}`
+        : `${errorMessage}\n${method} ${url} (${status})`
+
+      // 使用 error 类型的消息提示,并设置较长的显示时间
+      ElMessage({
+        message: displayMessage,
+        type: 'error',
+        duration: 5000,
+        showClose: true,
+        grouping: true,
+      })
     } catch (err) {
       ElMessage.error(error.message)
     }
