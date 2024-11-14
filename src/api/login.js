@@ -10,8 +10,6 @@
  * @Donate: https://huzhushan.gitee.io/vue3-element-admin/donate/
  */
 import request from '@/utils/request'
-import { TOKEN } from '@/pinia/modules/app'
-import { getItem } from '@/utils/storage'
 
 // 登录接口
 export const Login = data => {
@@ -24,9 +22,8 @@ export const Login = data => {
 
 // 获取登录用户信息
 export const GetUserinfo = () => {
-  const tokenObject = getItem(TOKEN)
   return request({
-    url: `/api/admin/system/index/userinfo?token=${tokenObject.token}`,
+    url: `/api/admin/system/index/userinfo`,
     method: 'get',
   })
 }

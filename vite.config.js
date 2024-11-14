@@ -73,8 +73,9 @@ export default env => {
       },
     },
     server: {
-      port: 3001,
+      port: 5732,
       open: true,
+      strictPort: false, // Add this to try alternative ports if 3001 is taken
       proxy: {
         '/api': {
           target: 'http://localhost:15000',
