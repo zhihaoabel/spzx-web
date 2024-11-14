@@ -39,6 +39,7 @@ import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import ElementPlusPlugin from './plugins/element-plus'
 import App from './App.vue'
+import './assets/style/index.scss'
 
 const app = createApp(App)
 

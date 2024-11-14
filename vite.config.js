@@ -66,6 +66,9 @@ export default env => {
           additionalData: `@use "./src/assets/style/global-variables.scss" as *;`,
         },
       },
+      postcss: {
+        plugins: [require('tailwindcss'), require('autoprefixer')],
+      },
     },
     resolve: {
       alias: {

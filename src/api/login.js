@@ -11,6 +11,14 @@
  */
 import request from '@/utils/request'
 
+// 获取验证码
+export const GetCaptcha = () => {
+  return request({
+    url: '/api/admin/system/index/captcha',
+    method: 'get',
+  })
+}
+
 // 登录接口
 export const Login = data => {
   return request({

@@ -11,26 +11,55 @@
 -->
 <template>
   <div class="login">
-    <el-form class="form" :model="model" :rules="rules" ref="loginForm">
-      <h1 class="title">Vue3 Element Admin</h1>
+    <el-form
+      class="form"
+      :model="model"
+      :rules="rules"
+      @validate="handleValidate"
+      ref="loginForm"
+    >
+      <h1 class="title">尚品甄选后台管理系统</h1>
       <el-form-item prop="username">
         <el-input
+          ref="usernameInput"
           class="text"
           v-model="model.username"
           prefix-icon="User"
           clearable
           :placeholder="$t('login.username')"
+          @keyup.enter="handleFocus"
         />
       </el-form-item>
       <el-form-item prop="password">
         <el-input
+          ref="passwordInput"
           class="text"
           v-model="model.password"
           prefix-icon="Lock"
           show-password
           clearable
           :placeholder="$t('login.password')"
+          @keyup.enter="handleEnterSubmit"
         />
+      </el-form-item>
+      <el-form-item prop="captcha">
+        <div class="captcha flex items-center justify-between w-full">
+          <el-input
+            ref="captchaInput"
+            class="text w-3/5"
+            v-model="model.captcha"
+            prefix-icon="Lock"
+            clearable
+            :placeholder="$t('login.captcha')"
+            @keyup.enter="handleEnterSubmit"
+          />
+          <img
+            class="captcha-img cursor-pointer w-1/5 ml-2"
+            :src="captchaImg"
+            alt="验证码"
+            @click="getCaptcha"
+          />
+        </div>
       </el-form-item>
       <el-form-item>
         <el-button
@@ -59,8 +88,9 @@ import {
   ref,
   computed,
   watch,
+  onMounted,
 } from 'vue'
-import { Login } from '@/api/login'
+import { Login, GetCaptcha } from '@/api/login'
 import { useRouter, useRoute } from 'vue-router'
 import ChangeLang from '@/layout/components/Topbar/ChangeLang.vue'
 import useLang from '@/i18n/useLang'
@@ -77,6 +107,11 @@ export default defineComponent({
     watch(lang, () => {
       state.rules = getRules()
     })
+
+    onMounted(() => {
+      state.getCaptcha()
+    })
+
     const getRules = () => ({
       username: [
         {
@@ -98,18 +133,80 @@ export default defineComponent({
           trigger: 'blur',
         },
       ],
+      captcha: [
+        {
+          required: true,
+          message: ctx.$t('login.rules-captcha'),
+          trigger: 'blur',
+        },
+      ],
     })
     const state = reactive({
       model: {
         username: 'admin',
         password: '111111',
+        key: '',
+        captcha: '',
       },
       rules: getRules(),
       loading: false,
+      usernameInput: null,
+      passwordInput: null,
+      captchaInput: null,
+      captchaImg: '',
       btnText: computed(() =>
         state.loading ? ctx.$t('login.logining') : ctx.$t('login.login')
       ),
       loginForm: ref(null),
+      getCaptcha: async () => {
+        state.captchaImg = ''
+        const { code, data } = await GetCaptcha()
+        if (+code === 20000) {
+          state.captchaImg = data.image
+          state.model.key = data.key
+        }
+      },
+      focusUsername: () => {
+        state.usernameInput?.focus()
+      },
+      focusPassword: () => {
+        state.passwordInput?.focus()
+      },
+      focusCaptcha: () => {
+        state.captchaInput?.focus()
+      },
+      handleValidate: (prop, isValid) => {
+        if (state.loading) return
+
+        if (prop === 'username' && !isValid) {
+          // 用户名验证失败时，聚焦到用户名输入框
+          state.focusUsername()
+        } else if (prop === 'password' && !isValid) {
+          // 密码验证失败时，聚焦到密码输入框
+          state.focusPassword()
+        } else if (prop === 'captcha' && !isValid) {
+          // 验证码验证失败时，聚焦到验证码输入框
+          state.focusCaptcha()
+        }
+      },
+      handleFocus: () => {
+        if (state.loading) return
+
+        // 根据输入框内容判断聚焦位置
+        if (!state.model.password) {
+          state.focusPassword()
+        } else if (!state.model.captcha) {
+          state.focusCaptcha()
+        } else {
+          // 如果都有内容,优先聚焦密码框
+          state.focusPassword()
+        }
+      },
+      handleEnterSubmit: () => {
+        if (!state.loading) {
+          state.submit()
+        }
+      },
       submit: () => {
         if (state.loading) {
           return
@@ -138,6 +235,14 @@ export default defineComponent({
             } else {
               ctx.$message.error(message)
               state.loading = false
+              state.getCaptcha()
+
+              // 如果验证码错误，则聚焦到验证码输入框
+              if (message.includes('验证码错误')) {
+                state.focusCaptcha()
+              } else if (message.includes('用户名或者密码错误')) {
+                state.focusUsername()
+              }
             }
             state.loading = false
           }

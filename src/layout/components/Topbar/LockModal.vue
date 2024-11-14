@@ -59,7 +59,7 @@
     :title="$t('topbar.lock-title')"
     v-model="dialogVisible"
     width="640px"
-    custom-class="lock-modal"
+    class="lock-modal"
     append-to-body
   >
     <Avatar />
