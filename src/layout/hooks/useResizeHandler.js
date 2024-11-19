@@ -30,17 +30,13 @@
  * @Github: https://github.com/huzhushan/vue3-element-admin
  * @Donate: https://huzhushan.gitee.io/vue3-element-admin/donate/
  */
-
-import { storeToRefs } from 'pinia'
 import { useApp } from '@/pinia/modules/app'
-import { onBeforeMount, onBeforeUnmount, computed } from 'vue'
+import { onBeforeMount, onBeforeUnmount } from 'vue'
 
 const WIDTH = 768
 export const useResizeHandler = () => {
   const appStore = useApp()
-  const { sidebar } = storeToRefs(appStore)
   const { setDevice, setCollapse } = appStore
-  const collapse = computed(() => sidebar.value.collapse)
 
   const isMobile = () => {
     return window.innerWidth < WIDTH
@@ -49,10 +45,10 @@ export const useResizeHandler = () => {
   const resizeHandler = () => {
     if (isMobile()) {
       setDevice('mobile')
-      setCollapse(1)
+      setCollapse(true)
     } else {
       setDevice('desktop')
-      setCollapse(collapse.value)
+      setCollapse(false)
     }
   }
 

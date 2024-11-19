@@ -35,7 +35,7 @@
 <template>
   <div
     class="left"
-    :class="{ collapse: collapse, mobile: device === 'mobile' }"
+    :class="{ collapsed: collapse, mobile: device === 'mobile' }"
   >
     <logo />
     <menus :collapse="collapse" />
@@ -62,7 +62,7 @@ export default defineComponent({
     const collapse = computed(() => sidebar.value.collapse)
 
     const closeSidebar = () => {
-      setCollapse(1)
+      setCollapse(true)
     }
 
     return {
@@ -82,7 +82,7 @@ export default defineComponent({
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  &.collapse {
+  &.collapsed {
     width: 64px;
     ::v-deep(.brand .title) {
       display: none;

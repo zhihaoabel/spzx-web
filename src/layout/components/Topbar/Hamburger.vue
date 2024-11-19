@@ -29,7 +29,7 @@
   <el-icon
     :size="20"
     class="fold-btn"
-    :class="{ collapse: collapse }"
+    :class="{ collapsed: collapse, expanded: !collapse }"
     @click="handleToggleMenu"
   >
     <Fold />
@@ -46,7 +46,7 @@ export default defineComponent({
     const { sidebar } = storeToRefs(appStore)
     const { setCollapse } = appStore
     const handleToggleMenu = () => {
-      setCollapse(+!sidebar.value.collapse)
+      setCollapse(!sidebar.value.collapse)
     }
     return {
       collapse: computed(() => sidebar.value.collapse),
@@ -60,8 +60,12 @@ export default defineComponent({
   line-height: 48px;
   padding: 0 10px;
   cursor: pointer;
-  &.collapse {
-    transform: scale(-1, 1);
+  &.collapsed {
+    transform: scale(1, 1);
+  }
+
+  &.expanded {
+    transform: scale(1, 1);
   }
 }
 </style>
