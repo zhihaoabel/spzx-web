@@ -60,7 +60,7 @@ let loadingInstance = null
 router.beforeEach(async to => {
   loadingInstance = ElLoading.service({
     lock: true,
-    // text: '正在加载数据，请稍候~',
+    text: 'Loading...',
     background: 'rgba(0, 0, 0, 0.7)',
   })
 
@@ -68,6 +68,7 @@ router.beforeEach(async to => {
     return true
   }
   if (!window.localStorage[TOKEN]) {
+    message.warning('长时间未操作，请重新登录')
     return {
       name: 'login',
       query: {
@@ -76,14 +77,23 @@ router.beforeEach(async to => {
       replace: true,
     }
   } else {
-    const { userinfo, getUserinfo } = useAccount()
+    const accountStore = useAccount()
     // 获取用户角色信息，根据角色判断权限
-    if (!userinfo) {
+    if (!accountStore.userinfo) {
       try {
         // 获取用户信息
-        await getUserinfo()
+        await accountStore.getUserinfo()
+        if (accountStore.userinfo === null) {
+          message.warning('没有用户信息，请重新登录')
+          return {
+            name: 'login',
+            query: {
+              redirect: to.fullPath,
+            },
+          }
+        }
       } catch (err) {
-        message.error('没有用户信息，不进行下一步')
+        message.warning('没有用户信息，不进行下一步')
         loadingInstance.close()
         return false
       }

@@ -159,11 +159,13 @@ export default defineComponent({
       ),
       loginForm: ref(null),
       getCaptcha: async () => {
-        state.captchaImg = ''
         const { code, data } = await GetCaptcha()
         if (+code === 20000) {
           state.captchaImg = data.image
           state.model.key = data.key
+        } else {
+          state.captchaImg = ''
+          ctx.$message.error('获取验证码失败')
         }
       },
       focusUsername: () => {

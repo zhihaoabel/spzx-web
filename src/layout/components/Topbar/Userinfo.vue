@@ -69,26 +69,34 @@
   </el-dropdown>
 </template>
 <script>
-import { defineComponent } from 'vue'
+import { defineComponent, getCurrentInstance } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserinfo } from '@/components/Avatar/hooks/useUserinfo'
 import LockModal from './LockModal.vue'
 import { useApp } from '@/pinia/modules/app'
+import { Logout } from '@/api/login'
 
 export default defineComponent({
   components: {
     LockModal,
   },
   setup() {
+    const { proxy: ctx } = getCurrentInstance()
     const router = useRouter()
 
     const { userinfo } = useUserinfo()
 
     // 退出
-    const logout = () => {
-      // 清除token
-      useApp().clearToken()
-      router.push('/login')
+    const logout = async () => {
+      const { code, message } = await Logout()
+      if (+code === 20000) {
+        // 清除token
+        useApp().clearToken()
+        router.push('/login')
+        ctx.$message.success('退出成功')
+      } else {
+        ctx.$message.error(message)
+      }
     }
 
     return {
