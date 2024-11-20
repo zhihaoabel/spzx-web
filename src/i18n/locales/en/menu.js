@@ -13,4 +13,8 @@ export default {
   nestPage1: 'Page1',
   nestPage2: 'Page2',
   'test-error-log': 'Error log',
+  system: 'System',
+  user: 'User',
+  role: 'Role',
+  menu: 'Menu',
 }
