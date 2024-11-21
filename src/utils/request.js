@@ -119,6 +119,7 @@ service.interceptors.response.use(
     }
 
     // console.dir(error) // 可在此进行错误上报
+
     ElMessage.closeAll()
     try {
       // 获取错误信息

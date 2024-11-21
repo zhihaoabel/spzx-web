@@ -5,11 +5,12 @@
   >
     <el-input
       v-model="searchQuery"
-      style="max-width: 450px"
+      class="sm:max-w-80"
       :placeholder="$t('system.role-search')"
+      @keyup.enter="handleSearchClick"
     >
       <template #append>
-        <el-button :icon="Search" @click="handleSearch" />
+        <el-button :icon="Search" @click="handleSearchClick" />
       </template>
     </el-input>
     <el-button
@@ -38,11 +39,11 @@
       :label="$t('system.role-table.description')"
     />
     <el-table-column
-      prop="createdAt"
+      prop="createTime"
       :label="$t('system.role-table.createdAt')"
     />
     <el-table-column
-      prop="updatedAt"
+      prop="updateTime"
       :label="$t('system.role-table.updatedAt')"
     />
     <el-table-column
@@ -52,16 +53,18 @@
       align="center"
     >
       <template #default="scope">
-        <el-button link type="primary" @click="handleEditRole(scope.row)">
-          <el-icon :size="16" color="blue">
-            <Edit />
-          </el-icon>
-        </el-button>
-        <el-button link type="primary" @click="handleDeleteRole(scope.row)">
-          <el-icon :size="16" color="red">
-            <Delete />
-          </el-icon>
-        </el-button>
+        <div class="flex items-center justify-center">
+          <el-button link type="primary" @click="handleEditRole(scope.row)">
+            <el-icon :size="16" color="blue">
+              <Edit />
+            </el-icon>
+          </el-button>
+          <el-button link type="primary" @click="handleDeleteRole(scope.row)">
+            <el-icon :size="16" color="red">
+              <Delete />
+            </el-icon>
+          </el-button>
+        </div>
       </template>
     </el-table-column>
   </el-table>
@@ -69,41 +72,39 @@
   <el-pagination
     v-model:current-page="pagination.current"
     v-model:page-size="pagination.pageSize"
-    :page-sizes="[100, 200, 300, 400]"
+    :page-sizes="pagination.pageSizes"
     :size="pagination.size"
+    :total="pagination.total"
     :background="pagination.background"
     layout="total, sizes, prev, pager, next, jumper"
-    :total="pagination.total"
     :hide-on-single-page="pagination.hideOnSinglePage"
     @size-change="handleSizeChange"
     @current-change="handleCurrentChange"
   />
 </template>
 <script>
-import { defineComponent, reactive, toRefs, onMounted } from 'vue'
+import { defineComponent, ref, onMounted } from 'vue'
 import { Search, Plus, Edit, Delete } from '@element-plus/icons-vue'
+import { GetRoles } from '@/api/role'
+import { usePagination } from '@/composables/usePagination'
 
 export default defineComponent({
   name: 'SystemRole',
   setup() {
-    const state = reactive({
-      searchQuery: '',
-      tableRef: null,
-      tableData: [],
-      loading: false,
-      pagination: {
-        current: 1,
-        pageSize: 2,
-        total: 3,
-        size: 'default',
-        background: true,
-        hideOnSinglePage: false,
-      },
-    })
+    // 使用分页逻辑
+    const {
+      pagination,
+      loading,
+      total,
+      tableData,
+      handleSearch,
+      handleCurrentChange,
+      handleSizeChange,
+      resetPagination,
+    } = usePagination(GetRoles)
 
-    const handleSearch = () => {
-      console.log(state.searchQuery, 'searchQuery')
-    }
+    const tableRef = ref(null)
+    const searchQuery = ref('')
 
     const handleAddRole = () => {
       console.log('添加角色')
@@ -117,42 +118,18 @@ export default defineComponent({
       console.log({ ...row }, '删除角色')
     }
 
-    const handleSizeChange = pageSize => {
-      console.log(pageSize, 'pageSize')
+    // 搜索按钮点击
+    const handleSearchClick = async () => {
+      pagination.current = 1 // 重置到第一页
+      handleSearch({ name: searchQuery.value })
     }
 
-    const handleCurrentChange = current => {
-      console.log(current, 'current')
-    }
-
-    onMounted(() => {
-      state.tableData = [
-        {
-          name: '管理员',
-          code: 'admin',
-          description: '管理员',
-          createdAt: '2021-01-01',
-          updatedAt: '2021-01-01',
-        },
-        {
-          name: '测试员',
-          code: 'test',
-          description: '测试员',
-          createdAt: '2021-01-01',
-          updatedAt: '2021-01-01',
-        },
-        {
-          name: '访客',
-          code: 'guest',
-          description: '访客',
-          createdAt: '2021-01-01',
-          updatedAt: '2021-01-01',
-        },
-      ]
+    onMounted(async () => {
+      handleSearch()
     })
 
     return {
-      ...toRefs(state),
+      tableRef,
       Search,
       Plus,
       Edit,
@@ -163,6 +140,13 @@ export default defineComponent({
       handleDeleteRole,
       handleSizeChange,
       handleCurrentChange,
+      handleSearchClick,
+      loading,
+      pagination,
+      tableData,
+      searchQuery,
+      total,
+      resetPagination,
     }
   },
 })
