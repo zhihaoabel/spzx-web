@@ -68,6 +68,7 @@
       </template>
     </el-table-column>
   </el-table>
+
   <!-- 分页区域 -->
   <el-pagination
     v-model:current-page="pagination.current"
@@ -81,13 +82,43 @@
     @size-change="handleSizeChange"
     @current-change="handleCurrentChange"
   />
+
+  <!-- 添加或编辑角色弹窗 -->
+  <el-dialog
+    v-model="dialogVisible"
+    :title="isEdit ? $t('system.role-form.edit') : $t('system.role-form.add')"
+    class="sm:max-w-md"
+  >
+    <el-form :model="formData">
+      <el-form-item :label="$t('system.role-form.item.name')">
+        <el-input v-model="formData.name" />
+      </el-form-item>
+      <el-form-item :label="$t('system.role-form.item.code')">
+        <el-input v-model="formData.code" />
+      </el-form-item>
+      <el-form-item :label="$t('system.role-form.item.description')">
+        <el-input v-model="formData.description" />
+      </el-form-item>
+    </el-form>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="dialogVisible = false">
+          {{ $t('system.role-form.cancel') }}
+        </el-button>
+        <el-button type="primary" @click="handleConfirm(formData)">
+          {{ $t('system.role-form.confirm') }}
+        </el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 <script>
 import { defineComponent, ref, onMounted } from 'vue'
 import { Search, Plus, Edit, Delete } from '@element-plus/icons-vue'
-import { GetRoles } from '@/api/role'
+import { GetRoles, AddRole, EditRole, DeleteRole } from '@/api/role'
 import { usePagination } from '@/composables/usePagination'
-
+import { ElMessageBox } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 export default defineComponent({
   name: 'SystemRole',
   setup() {
@@ -105,17 +136,71 @@ export default defineComponent({
 
     const tableRef = ref(null)
     const searchQuery = ref('')
+    const dialogVisible = ref(false)
+    const isEdit = ref(false)
+    const { t } = useI18n()
+    const formData = ref({
+      name: '',
+      description: '',
+      code: '',
+    })
+
+    const openAddRoleDialog = () => {
+      dialogVisible.value = true
+      isEdit.value = false
+      formData.value = {
+        name: '',
+        description: '',
+        code: '',
+      }
+    }
+
+    const openEditRoleDialog = row => {
+      dialogVisible.value = true
+      isEdit.value = true
+      formData.value = { ...row }
+    }
 
     const handleAddRole = () => {
-      console.log('添加角色')
+      openAddRoleDialog()
     }
 
     const handleEditRole = row => {
-      console.log({ ...row }, '编辑角色')
+      openEditRoleDialog(row)
+      formData.value = { ...row }
+    }
+
+    const handleConfirm = async () => {
+      if (isEdit.value) {
+        await EditRole(formData.value.id, formData.value).then(() => {
+          dialogVisible.value = false
+          handleSearch()
+        })
+      } else {
+        await AddRole(formData.value).then(() => {
+          dialogVisible.value = false
+          handleSearch()
+        })
+      }
     }
 
     const handleDeleteRole = row => {
-      console.log({ ...row }, '删除角色')
+      ElMessageBox.confirm(
+        t('system.role-form.message.delete'),
+        t('system.role-form.message.warning'),
+        {
+          type: 'warning',
+          boxType: 'confirm',
+          confirmButtonText: t('system.role-form.message.confirm'),
+          cancelButtonText: t('system.role-form.message.cancel'),
+        }
+      )
+        .then(() => {
+          DeleteRole(row.id).then(() => {
+            handleSearch()
+          })
+        })
+        .catch(() => {})
     }
 
     // 搜索按钮点击
@@ -147,6 +232,10 @@ export default defineComponent({
       searchQuery,
       total,
       resetPagination,
+      dialogVisible,
+      formData,
+      isEdit,
+      handleConfirm,
     }
   },
 })

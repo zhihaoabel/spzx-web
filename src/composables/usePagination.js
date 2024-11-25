@@ -1,13 +1,18 @@
 // composables/usePagination.js
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
+import { setItem, getItem } from '@/utils/storage'
+
+export const PAGE_SIZE = 'VEA-PAGE-SIZE'
 
 export function usePagination(fetchData) {
   const pagination = reactive({
+    prev: 1,
     current: 1,
-    pageSize: 10,
+    next: 1,
+    pageSize: getItem(PAGE_SIZE) || 10,
     total: 0,
-    pageSizes: [1, 10, 20, 50, 100],
+    pageSizes: [10, 20, 50, 100, 200],
     size: 'default',
     background: true,
     hideOnSinglePage: false,
@@ -30,6 +35,8 @@ export function usePagination(fetchData) {
         tableData.value = data.records || []
         pagination.total = data.total || 0
         pagination.current = data.current || 1
+        pagination.prev = data.prev || 1
+        pagination.next = data.next || 1
         return data
       }
       ElMessage.error(message)
@@ -51,6 +58,7 @@ export function usePagination(fetchData) {
   // 处理每页条数变化
   const handleSizeChange = size => {
     pagination.pageSize = size
+    setItem(PAGE_SIZE, pagination.pageSize)
     pagination.current = 1 // 重置到第一页
     handleSearch()
   }

@@ -12,3 +12,29 @@ export const GetRoles = params => {
     },
   })
 }
+
+// 添加角色
+export const AddRole = data => {
+  return request({
+    url: '/api/admin/system/roles',
+    method: 'post',
+    data,
+  })
+}
+
+// 编辑角色
+export const EditRole = (id, data) => {
+  return request({
+    url: `/api/admin/system/roles/${id}`,
+    method: 'put',
+    data,
+  })
+}
+
+// 删除角色
+export const DeleteRole = id => {
+  return request({
+    url: `/api/admin/system/roles/${id}`,
+    method: 'delete',
+  })
+}
