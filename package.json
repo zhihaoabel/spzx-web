@@ -20,6 +20,7 @@
     "last 2 versions"
   ],
   "dependencies": {
+    "@iconify/vue": "^4.1.2",
     "axios": "^0.21.1",
     "lucide-vue-next": "^0.460.0",
     "pinia": "^2.2.4",

@@ -59,6 +59,15 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   // 响应成功进入第1个函数，该函数的参数是响应对象
   response => {
+    // 如果响应码不是 20000，则报错
+    if (response.data.code !== 20000) {
+      ElMessage.error({
+        message: response.data.message,
+        duration: 5000,
+        showClose: true,
+        grouping: true,
+      })
+    }
     return response.data
   },
   // 响应失败进入第2个函数，该函数的参数是错误对象

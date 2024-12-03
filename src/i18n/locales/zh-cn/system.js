@@ -14,6 +14,7 @@ export default {
   'role-form': {
     add: '添加角色',
     edit: '编辑角色',
+    delete: '删除角色',
     cancel: '取消',
     confirm: '确定',
     item: {
@@ -23,11 +24,36 @@ export default {
     },
     message: {
       delete: '确定要删除该角色吗？',
+      nameRequired: '角色名称不能为空',
       deleteSuccess: '删除角色成功',
       deleteError: '删除角色失败',
       warning: '提示',
       confirm: '确定',
       cancel: '取消',
+    },
+  },
+  'user-form': {
+    assignRoles: '分配角色',
+    add: '添加用户',
+    delete: '删除用户',
+    edit: '编辑用户',
+    cancel: '取消',
+    confirm: '确定',
+    item: {
+      username: '用户名',
+      realName: '真实姓名',
+      phone: '手机号',
+      avatar: '头像',
+    },
+    message: {
+      delete: '确定要删除该用户吗？',
+      deleteSuccess: '删除用户成功',
+      deleteError: '删除用户失败',
+      usernameRequired: '用户名不能为空',
+      realNameRequired: '真实姓名不能为空',
+      phoneRequired: '手机号不能为空',
+      avatarRequired: '头像不能为空',
+      statusRequired: '状态不能为空',
     },
   },
 }

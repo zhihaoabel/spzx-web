@@ -55,14 +55,21 @@
       <template #default="scope">
         <div class="flex items-center justify-center">
           <el-button link type="primary" @click="handleEditRole(scope.row)">
-            <el-icon :size="16" color="blue">
-              <Edit />
-            </el-icon>
+            <el-tooltip :content="$t('system.role-form.edit')" placement="top">
+              <el-icon :size="16" color="blue">
+                <Edit />
+              </el-icon>
+            </el-tooltip>
           </el-button>
           <el-button link type="primary" @click="handleDeleteRole(scope.row)">
-            <el-icon :size="16" color="red">
-              <Delete />
-            </el-icon>
+            <el-tooltip
+              :content="$t('system.role-form.delete')"
+              placement="top"
+            >
+              <el-icon :size="16" color="red">
+                <Delete />
+              </el-icon>
+            </el-tooltip>
           </el-button>
         </div>
       </template>
@@ -89,14 +96,17 @@
     :title="isEdit ? $t('system.role-form.edit') : $t('system.role-form.add')"
     class="sm:max-w-md"
   >
-    <el-form :model="formData">
-      <el-form-item :label="$t('system.role-form.item.name')">
+    <el-form ref="formRef" :model="formData" :rules="rules">
+      <el-form-item :label="$t('system.role-form.item.name')" prop="name">
         <el-input v-model="formData.name" />
       </el-form-item>
-      <el-form-item :label="$t('system.role-form.item.code')">
+      <el-form-item :label="$t('system.role-form.item.code')" prop="code">
         <el-input v-model="formData.code" />
       </el-form-item>
-      <el-form-item :label="$t('system.role-form.item.description')">
+      <el-form-item
+        :label="$t('system.role-form.item.description')"
+        prop="description"
+      >
         <el-input v-model="formData.description" />
       </el-form-item>
     </el-form>
@@ -113,12 +123,13 @@
   </el-dialog>
 </template>
 <script>
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, watch } from 'vue'
 import { Search, Plus, Edit, Delete } from '@element-plus/icons-vue'
 import { GetRoles, AddRole, EditRole, DeleteRole } from '@/api/role'
 import { usePagination } from '@/composables/usePagination'
 import { ElMessageBox } from 'element-plus'
 import { useI18n } from 'vue-i18n'
+import useLang from '@/i18n/useLang'
 export default defineComponent({
   name: 'SystemRole',
   setup() {
@@ -138,12 +149,26 @@ export default defineComponent({
     const searchQuery = ref('')
     const dialogVisible = ref(false)
     const isEdit = ref(false)
+    const { lang } = useLang()
     const { t } = useI18n()
+    const formRef = ref('roleForm')
     const formData = ref({
       name: '',
       description: '',
       code: '',
     })
+
+    const getRules = () => ({
+      name: [
+        {
+          required: true,
+          message: t('system.role-form.message.nameRequired'),
+          trigger: 'blur',
+        },
+      ],
+    })
+
+    const rules = ref(getRules())
 
     const openAddRoleDialog = () => {
       dialogVisible.value = true
@@ -171,17 +196,22 @@ export default defineComponent({
     }
 
     const handleConfirm = async () => {
-      if (isEdit.value) {
-        await EditRole(formData.value.id, formData.value).then(() => {
-          dialogVisible.value = false
-          handleSearch()
-        })
-      } else {
-        await AddRole(formData.value).then(() => {
-          dialogVisible.value = false
-          handleSearch()
-        })
-      }
+      formRef.value.validate(async valid => {
+        if (valid) {
+          if (isEdit.value) {
+            await EditRole(formData.value.id, formData.value).then(() => {
+              dialogVisible.value = false
+              handleSearch()
+            })
+          } else {
+            // 可能报错
+            await AddRole(formData.value).then(() => {
+              dialogVisible.value = false
+              handleSearch()
+            })
+          }
+        }
+      })
     }
 
     const handleDeleteRole = row => {
@@ -213,6 +243,10 @@ export default defineComponent({
       handleSearch()
     })
 
+    watch(lang, () => {
+      rules.value = getRules()
+    })
+
     return {
       tableRef,
       Search,
@@ -236,6 +270,8 @@ export default defineComponent({
       formData,
       isEdit,
       handleConfirm,
+      rules,
+      formRef,
     }
   },
 })
